@@ -1,0 +1,24 @@
+{
+  "livros": [
+    {
+      "id_livro": "5",
+      "titulo": "Pequeno Principe",
+      "autor": "Sei la porra",
+      "isbn": "564",
+      "disponivel": false
+    }
+  ],
+  "usuarios": [
+    {
+      "id_usuario": "8",
+      "nome": "Leonardo",
+      "cpf": "11601658907",
+      "emprestimos": {
+        "564": {
+          "titulo": "Pequeno Principe",
+          "prazo": "2026-05-05"
+        }
+      }
+    }
+  ]
+}
