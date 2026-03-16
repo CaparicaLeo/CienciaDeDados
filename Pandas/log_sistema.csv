@@ -5,3 +5,49 @@ id_evento,tipo,timestamp,descricao
 2,erro,2024-01-01 08:05:10,Falha ao carregar módulo X
 3,login,2024-01-01 08:10:00,Usuário convidado logou
 4,sucesso,2024-01-01 08:15:30,Operação concluída
+5,login,2024-01-01 08:20:00,Usuário user1 logou
+6,erro,2024-01-01 08:25:00,Timeout na conexão
+7,sucesso,2024-01-01 08:30:00,Backup realizado
+8,login,2024-01-01 08:35:00,Usuário user2 logou
+9,erro,2024-01-01 08:40:00,Erro de permissão
+10,sucesso,2024-01-01 08:45:00,Relatório gerado
+11,login,2024-01-01 08:50:00,Usuário admin logou
+12,erro,2024-01-01 08:55:00,Falha no módulo Y
+13,login,2024-01-01 09:00:00,Usuário user3 logou
+14,sucesso,2024-01-01 09:05:00,Dados sincronizados
+15,login,2024-01-01 09:10:00,Usuário convidado logou
+16,erro,2024-01-01 09:15:00,Crash no sistema
+17,sucesso,2024-01-01 09:20:00,Upload finalizado
+18,login,2024-01-01 09:25:00,Usuário user4 logou
+19,erro,2024-01-01 09:30:00,Erro de banco de dados
+20,sucesso,2024-01-01 09:35:00,Email enviado
+21,login,2024-01-01 09:40:00,Usuário admin logou
+22,erro,2024-01-01 09:45:00,Módulo Z não encontrado
+23,login,2024-01-01 09:50:00,Usuário user5 logou
+24,sucesso,2024-01-01 09:55:00,Processo encerrado
+25,login,2024-01-01 10:00:00,Usuário admin logou
+26,erro,2024-01-01 10:05:00,Falha de hardware
+27,sucesso,2024-01-01 10:10:00,Configuração salva
+28,login,2024-01-01 10:15:00,Usuário user6 logou
+29,erro,2024-01-01 10:20:00,Erro de rede
+30,sucesso,2024-01-01 10:25:00,Certificado atualizado
+31,login,2024-01-01 10:30:00,Usuário admin logou
+32,erro,2024-01-01 10:35:00,Memória insuficiente
+33,login,2024-01-01 10:40:00,Usuário convidado logou
+34,sucesso,2024-01-01 10:45:00,Limpeza concluída
+35,login,2024-01-01 10:50:00,Usuário user7 logou
+36,erro,2024-01-01 10:55:00,Serviço interrompido
+37,sucesso,2024-01-01 11:00:00,Ping recebido
+38,login,2024-01-01 11:05:00,Usuário admin logou
+39,erro,2024-01-01 11:10:00,Acesso negado
+40,sucesso,2024-01-01 11:15:00,Tarefa agendada
+41,login,2024-01-01 11:20:00,Usuário user8 logou
+42,erro,2024-01-01 11:25:00,Input inválido
+43,sucesso,2024-01-01 11:30:00,Cache limpo
+44,login,2024-01-01 11:35:00,Usuário admin logou
+45,erro,2024-01-01 11:40:00,Conexão recusada
+46,sucesso,2024-01-01 11:45:00,Script rodado
+47,login,2024-01-01 11:50:00,Usuário convidado logou
+48,erro,2024-01-01 11:55:00,Porta 8080 ocupada
+49,sucesso,2024-01-01 12:00:00,Status OK
+50,login,2024-01-01 12:05:00,Usuário user9 logou
