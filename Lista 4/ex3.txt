@@ -1,0 +1,9 @@
+## APIs vs. Web Scraping
+
+Ao buscar dados da internet, duas abordagens principais se destacam: o uso de APIs e o Web Scraping. Cada uma tem seu lugar dependendo do contexto.
+
+Uma API é uma interface oficial oferecida pelo próprio serviço, que entrega dados de forma estruturada, geralmente em JSON ou XML. Isso torna o consumo muito mais simples e confiável, já que a estrutura dos dados é documentada e estável. Além disso, o uso de APIs respeita os termos de serviço da plataforma e costuma vir acompanhado de mecanismos claros de autenticação e controle de uso. A principal desvantagem é que nem todo site oferece uma API, e quando oferece, ela pode ter limitações de volume de requisições, exigir pagamento para acesso completo ou simplesmente não expor todos os dados que você precisa.
+
+O Web Scraping, por outro lado, consiste em extrair dados diretamente do HTML de uma página, o que o torna aplicável a praticamente qualquer site, independentemente de haver ou não uma API disponível. É uma abordagem mais flexível e permite acessar informações que nunca foram disponibilizadas de forma estruturada. No entanto, essa flexibilidade tem um custo: o scraping é frágil por natureza, já que qualquer mudança no layout do site pode quebrar o código. Há também riscos legais e éticos, pois muitos sites proíbem essa prática em seus Termos de Serviço. Além disso, o site pode bloquear requisições automatizadas por IP, tornando a coleta instável.
+
+Em resumo, a recomendação geral é sempre preferir a API quando ela estiver disponível, recorrendo ao scraping apenas quando não houver alternativa — e sempre verificando a legalidade da prática, consultando o arquivo `robots.txt` do site e os termos de uso da plataforma.
