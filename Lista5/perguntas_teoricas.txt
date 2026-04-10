@@ -1,0 +1,20 @@
+1. A principal diferença entre csv.reader e csv.DictReader é que o primeiro retorna cada linha como uma lista, 
+exigindo acesso via índices numéricos, enquanto o segundo transforma cada linha em um dicionário, mapeando os 
+valores aos nomes das colunas (cabeçalhos). O DictReader é preferível para garantir a legibilidade e manutenção 
+do código, enquanto o reader é mais leve para arquivos sem cabeçalho. 
+
+2. Para extrair elementos com BeautifulSoup, o processo envolve carregar o HTML em um objeto soup e utilizar
+o método find_all('tag') para localizar todos os nós desejados, permitindo iterar sobre eles para extrair texto 
+ou atributos.
+
+3. Sobre a obtenção de dados, as APIs oferecem dados estruturados, estabilidade e permissão legal, mas podem
+ter custos e limites de requisição; já o Web Scraping permite acessar qualquer dado público da web, mas é 
+tecnicamente frágil a mudanças de layout e corre risco de bloqueios.
+
+4. A proteção de chaves de API é fundamental para evitar uso indevido de recursos e custos inesperados; 
+as melhores práticas incluem o uso de variáveis de ambiente (arquivos .env) e a inclusão desses arquivos no 
+.gitignore para que nunca sejam expostos em repositórios públicos.
+
+5. para coletar tweets em tempo real, a Streaming API é a escolha correta, pois mantém uma conexão aberta que 
+recebe dados instantaneamente conforme são publicados, ao contrário da Search API, que funciona por consultas 
+pontuais e limitadas.
