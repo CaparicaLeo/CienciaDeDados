@@ -7,7 +7,7 @@ def save_to_db(df, db_name="dengue_data.db"):
     # Salva os dados na tabela 'casos'
     df.to_sql('casos', conn, if_exists='replace', index=False)
     conn.close()
-    print(f"✅ Dados persistidos no banco {db_name}")
+    print(f"Dados persistidos no banco {db_name}")
 
 def get_cases_statistics(db_name="dengue_data.db"):
     """Calcula estatísticas de volume diretamente via SQL."""
