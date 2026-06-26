@@ -216,6 +216,61 @@ def plot_distribuicao_casos(df):
     _salvar(fig, "grafico_distribuicao_casos")
 
 
+def plot_mapa_brasil(df):
+    logger.info("Gerando mapa do Brasil com distribuicao de casos...")
+
+    if "sg_uf_not" not in df.columns:
+        logger.warning("Coluna 'sg_uf_not' nao encontrada. Pulando mapa.")
+        return
+
+    try:
+        import geopandas as gpd
+    except ImportError:
+        logger.warning("geopandas nao instalado. Pulando mapa.")
+        return
+
+    casos_por_uf = df["sg_uf_not"].value_counts().reset_index()
+    casos_por_uf.columns = ["codigo_ibg", "casos"]
+    casos_por_uf["codigo_ibg"] = casos_por_uf["codigo_ibg"].astype(str)
+
+    url = (
+        "https://raw.githubusercontent.com/codeforamerica/"
+        "click_that_hood/master/public/data/brazil-states.geojson"
+    )
+    try:
+        gdf = gpd.read_file(url)
+    except Exception as e:
+        logger.warning("Erro ao carregar GeoJSON do Brasil: %s", e)
+        return
+
+    gdf = gdf.merge(casos_por_uf, on="codigo_ibg", how="left")
+    gdf["casos"] = gdf["casos"].fillna(0).astype(int)
+
+    fig, ax = plt.subplots(figsize=(12, 10))
+    gdf.plot(
+        column="casos",
+        cmap="YlOrRd",
+        edgecolor="black",
+        linewidth=0.5,
+        legend=True,
+        ax=ax,
+        legend_kwds={"label": "Casos", "shrink": 0.6},
+    )
+
+    for _, row in gdf.iterrows():
+        if row["casos"] > 0:
+            ax.annotate(
+                row["sigla"],
+                xy=(row.geometry.centroid.x, row.geometry.centroid.y),
+                ha="center", va="center",
+                fontsize=8, color="black", fontweight="bold",
+            )
+
+    ax.set_title("Distribuicao de Casos de Dengue por Estado", fontsize=15)
+    ax.axis("off")
+    _salvar(fig, "grafico_mapa_brasil")
+
+
 def plot_roc_curve_logistica(resultados):
     logger.info("Gerando curva ROC para Regressao Logistica...")
 
@@ -314,6 +369,7 @@ def run_viz(df, resultados):
     plot_regressoes(resultados)
     plot_curva_aprendizado(df, resultados)
     plot_distribuicao_casos(df)
+    plot_mapa_brasil(df)
     plot_roc_curve_logistica(resultados)
     plot_coeficientes_logistica(resultados)
     plot_alpha_curve(resultados)
