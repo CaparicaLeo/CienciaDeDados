@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LinearRegression, LogisticRegression
+from sklearn.linear_model import LinearRegression, LogisticRegression, Ridge, Lasso
 from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     confusion_matrix, r2_score, mean_squared_error, roc_auc_score
@@ -174,12 +174,12 @@ def run_regressao_simples(df_agg_semana):
     }
 
 
-def run_regressao_multipla(df_agg_semana):
+def run_regressao_multipla_regularizada(df_agg_semana):
     logger.info("=" * 50)
-    logger.info("Regressao Linear Multipla (casos ~ sem_not + nu_ano + sg_uf_not)")
+    logger.info("Regressao Regularizada (Ridge + Lasso) com tuning de alpha")
 
     if df_agg_semana is None or "casos" not in df_agg_semana.columns:
-        logger.warning("Agregacao semanal nao disponivel. Pulando Reg. Multipla.")
+        logger.warning("Agregacao semanal nao disponivel. Pulando Reg. Regularizada.")
         return None
 
     agg = df_agg_semana.copy()
@@ -187,7 +187,7 @@ def run_regressao_multipla(df_agg_semana):
     logger.info("df_agg_semana.head(3):\n%s", agg.head(3).to_string())
 
     if agg.shape[0] < 10:
-        logger.warning("Poucas linhas (%d) para regressao multipla.", agg.shape[0])
+        logger.warning("Poucas linhas (%d) para regressao regularizada.", agg.shape[0])
         return None
 
     agg["sem_not_int"] = pd.to_numeric(agg["sem_not"], errors="coerce")
@@ -196,16 +196,12 @@ def run_regressao_multipla(df_agg_semana):
     features = ["sem_not_int", "nu_ano"]
 
     if "sg_uf_not" in agg.columns:
-        # LabelEncoder (ordinal) usado no lugar de OneHotEncoder porque o dataset
-        # agregado tem apenas ~251 linhas — 11 dummies para UF causariam
-        # perda severa de graus de liberdade e R² negativo (observado na pratica).
-        # Alternativa futura: Ridge Regression com one-hot encoding regularizado.
         from sklearn.preprocessing import LabelEncoder
         le = LabelEncoder()
         agg["uf_encoded"] = le.fit_transform(agg["sg_uf_not"].astype(str))
         features.append("uf_encoded")
 
-    logger.info("Features para regressao multipla: %s", features)
+    logger.info("Features para regressao regularizada: %s", features)
 
     X = agg[features].values
     y = agg["casos"].values
@@ -214,23 +210,45 @@ def run_regressao_multipla(df_agg_semana):
         X, y, test_size=0.2, random_state=42
     )
 
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
+    alphas = np.logspace(-3, 3, 20)
+    resultados = []
 
-    r2 = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    for ModelClass, nome in [(Ridge, "Ridge"), (Lasso, "Lasso")]:
+        scores = []
+        for alpha in alphas:
+            model = ModelClass(alpha=alpha, max_iter=10000, random_state=42)
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            scores.append(r2_score(y_test, y_pred))
 
-    logger.info("R²: %.4f | RMSE: %.2f", r2, rmse)
+        best_idx = int(np.argmax(scores))
+        best_alpha = float(alphas[best_idx])
 
-    return {
-        "modelo": "Regressao Linear Multipla",
-        "tipo": "regressao",
-        "r2": r2,
-        "rmse": rmse,
-        "y_test": y_test,
-        "y_pred": y_pred,
-    }
+        best_model = ModelClass(alpha=best_alpha, max_iter=10000, random_state=42)
+        best_model.fit(X_train, y_train)
+        y_pred = best_model.predict(X_test)
+
+        r2 = r2_score(y_test, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+
+        logger.info("%s - Melhor alpha: %.4f | R²: %.4f | RMSE: %.2f",
+                     nome, best_alpha, r2, rmse)
+
+        resultados.append({
+            "modelo": f"Regressao {nome}",
+            "tipo": "regressao",
+            "r2": r2,
+            "rmse": rmse,
+            "y_test": y_test,
+            "y_pred": y_pred,
+            "alpha_curve": {
+                "alphas": alphas.tolist(),
+                "scores": scores,
+                "best_alpha": best_alpha,
+            },
+        })
+
+    return resultados
 
 
 def run_logistica(df):
@@ -246,6 +264,8 @@ def run_logistica(df):
     if X.shape[1] == 0:
         logger.warning("Nenhuma feature disponivel. Pulando Reg. Logistica.")
         return None
+
+    feature_names = X.columns.tolist()
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42, stratify=y
@@ -289,6 +309,8 @@ def run_logistica(df):
         "y_test": y_test,
         "y_pred": y_pred,
         "y_prob": y_prob,
+        "coef": model.coef_[0].tolist(),
+        "feature_names": feature_names,
     }
 
 
@@ -307,9 +329,9 @@ def run_models(df, df_agg_semana=None):
     if reg_simples:
         resultados.append(reg_simples)
 
-    reg_mult = run_regressao_multipla(df_agg_semana)
-    if reg_mult:
-        resultados.append(reg_mult)
+    reg_ridge_lasso = run_regressao_multipla_regularizada(df_agg_semana)
+    if reg_ridge_lasso:
+        resultados.extend(reg_ridge_lasso)
 
     logistica = run_logistica(df)
     if logistica:

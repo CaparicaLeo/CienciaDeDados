@@ -216,6 +216,92 @@ def plot_distribuicao_casos(df):
     _salvar(fig, "grafico_distribuicao_casos")
 
 
+def plot_roc_curve_logistica(resultados):
+    logger.info("Gerando curva ROC para Regressao Logistica...")
+
+    log_result = next(
+        (r for r in resultados if r.get("modelo") == "Regressao Logistica" and "y_prob" in r),
+        None
+    )
+    if log_result is None:
+        logger.warning("Resultado da Regressao Logistica nao encontrado para curva ROC.")
+        return
+
+    from sklearn.metrics import roc_curve
+
+    y_test = log_result["y_test"]
+    y_prob = log_result["y_prob"]
+    auc = log_result.get("roc_auc", 0)
+
+    fpr, tpr, _ = roc_curve(y_test, y_prob)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.plot(fpr, tpr, "b-", linewidth=2, label=f"ROC Curve (AUC = {auc:.4f})")
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1, label="Aleatorio")
+    ax.set_xlabel("Taxa de Falsos Positivos (FPR)")
+    ax.set_ylabel("Taxa de Verdadeiros Positivos (TPR)")
+    ax.set_title("Curva ROC - Regressao Logistica", fontsize=14)
+    ax.legend(loc="lower right")
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+
+    _salvar(fig, "grafico_roc_logistica")
+
+
+def plot_coeficientes_logistica(resultados):
+    logger.info("Gerando grafico de coeficientes da Regressao Logistica...")
+
+    log_result = next(
+        (r for r in resultados if r.get("modelo") == "Regressao Logistica" and "coef" in r),
+        None
+    )
+    if log_result is None:
+        logger.warning("Coeficientes da Regressao Logistica nao encontrados.")
+        return
+
+    coef = np.array(log_result["coef"])
+    features = log_result["feature_names"]
+
+    idx = np.argsort(np.abs(coef))
+
+    fig, ax = plt.subplots(figsize=(10, max(6, len(features) * 0.35)))
+    colors = ["coral" if c < 0 else "steelblue" for c in coef[idx]]
+    ax.barh(range(len(features)), coef[idx], color=colors)
+    ax.set_yticks(range(len(features)))
+    ax.set_yticklabels([features[i] for i in idx])
+    ax.axvline(0, color="black", linewidth=0.8)
+    ax.set_xlabel("Coeficiente")
+    ax.set_title("Coeficientes da Regressao Logistica", fontsize=14)
+    ax.grid(True, alpha=0.3, axis="x")
+
+    _salvar(fig, "grafico_coeficientes_logistica")
+
+
+def plot_alpha_curve(resultados):
+    logger.info("Gerando curva de tuning de alpha (Ridge + Lasso)...")
+
+    reg_results = [r for r in resultados if r.get("alpha_curve") is not None]
+    if not reg_results:
+        logger.warning("Nenhum resultado com curva de alpha encontrado.")
+        return
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for r in reg_results:
+        ac = r["alpha_curve"]
+        ax.semilogx(ac["alphas"], ac["scores"], "o-",
+                     label=f"{r['modelo']} (melhor alpha={ac['best_alpha']:.4f})")
+
+    ax.set_xlabel("Alpha (escala log)")
+    ax.set_ylabel("R²")
+    ax.set_title("Tuning de Regularizacao - Ridge vs Lasso", fontsize=14)
+    ax.legend(loc="best")
+    ax.grid(True, alpha=0.3)
+
+    _salvar(fig, "grafico_alpha_curve")
+
+
 def run_viz(df, resultados):
     logger.info("=" * 60)
     logger.info("INICIANDO GERACAO DE GRAFICOS")
@@ -228,6 +314,9 @@ def run_viz(df, resultados):
     plot_regressoes(resultados)
     plot_curva_aprendizado(df, resultados)
     plot_distribuicao_casos(df)
+    plot_roc_curve_logistica(resultados)
+    plot_coeficientes_logistica(resultados)
+    plot_alpha_curve(resultados)
 
     logger.info("=" * 60)
     logger.info("GERACAO DE GRAFICOS FINALIZADA")
